@@ -83,11 +83,10 @@
           this._move();
         },
       };
-    
+
       const score = {
         human: 0,
         computer: 0,
-
 
         increaseHuman: function () {
           this.human++;
@@ -104,17 +103,6 @@
           canvasCTX.fillText(this.computer, field.w / 4 + field.w / 2, 50);
         },
       };
-      const win = {
-        red: score.computer == 0,
-        blue: score.human == 0,
-        Winner : function(){
-          if(this.red = 20){
-            alert('Red Wins')
-          } else if (this.blue = 20) {
-            alert('Blues win')
-          }
-        }
-      }
 
       const ball = {
         x: 40,
@@ -218,7 +206,6 @@
       }
       setup();
       main();
-      win.Winner()
 
       canvasEL.addEventListener("mousemove", function (e) {
         mouse.x = e.pageX;
