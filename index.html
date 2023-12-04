@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ping-Pong</title>
+    <style>
+      * {
+        margin: 0 auto;
+        padding: 00;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas></canvas>
+    <script>
+      const canvasEL = document.querySelector("canvas");
+      const canvasCTX = canvasEL.getContext("2d");
+      const gapX = 10;
+
+      const mouse = {
+        x: 0,
+        y: 0,
+      };
+
+      const field = {
+        w: window.innerWidth,
+        h: window.innerHeight,
+        draw: function () {
+          // Desenho do campo
+          canvasCTX.fillStyle = "#286047";
+          canvasCTX.fillRect(0, 0, this.w, this.h);
+        },
+      };
+
+      const line = {
+        w: 15,
+        h: field.h,
+        draw: function () {
+          // Desenho da linha central
+          canvasCTX.fillStyle = "#ffffff";
+          canvasCTX.fillRect(field.w / 2 - this.w / 2, 0, this.w, this.h);
+        },
+      };
+
+      const leftPadle = {
+        x: gapX,
+        y: 100,
+        w: line.w,
+        h: 200,
+        _move: function () {
+          this.y = mouse.y - this.h / 2;
+        },
+
+        draw: function () {
+          canvasCTX.fillStyle = "#0000ff";
+          canvasCTX.fillRect(10, this.y, this.w, this.h);
+          this._move();
+        },
+      };
+
+      const rightPadle = {
+        x: field.w - line.w - gapX,
+        y: 100,
+        w: line.w,
+        h: 200,
+        speed: 5,
+        _move: function () {
+          if (this.y + this.h / 2 < ball.y + ball.r) {
+            this.y += this.speed;
+          } else {
+            this.y -= this.speed;
+          }
+        },
+        speedUp: function () {
+          this.speed + 2;
+        },
+
+        draw: function () {
+          canvasCTX.fillStyle = "#ff2800";
+          canvasCTX.fillRect(this.x, this.y, this.w, this.h);
+          this._move();
+        },
+      };
+    
+      const score = {
+        human: 0,
+        computer: 0,
+
+
+        increaseHuman: function () {
+          this.human++;
+        },
+        increaseComputer: function () {
+          this.computer++;
+        },
+        draw: function () {
+          canvasCTX.font = "bold 72px Arial";
+          canvasCTX.textAlign = "center";
+          canvasCTX.textBaseline = "top";
+          canvasCTX.fillStyle = "#01341D";
+          canvasCTX.fillText(this.human, field.w / 4, 50);
+          canvasCTX.fillText(this.computer, field.w / 4 + field.w / 2, 50);
+        },
+      };
+      const win = {
+        red: score.computer == 0,
+        blue: score.human == 0,
+        Winner : function(){
+          if(this.red = 20){
+            alert('Red Wins')
+          } else if (this.blue = 20) {
+            alert('Blues win')
+          }
+        }
+      }
+
+      const ball = {
+        x: 40,
+        y: 0,
+        r: 20,
+        speed: 5,
+        directionX: 1,
+        directionY: 1,
+        _calcPosition: function () {
+          // verificar se o jogador 1 fez um ponto
+          if (this.x > field.w - this.r - rightPadle.w - gapX) {
+            if (
+              this.y + this.r > rightPadle.y &&
+              this.y - this.r < rightPadle.y + rightPadle.h
+            ) {
+              this._reverseX();
+            } else {
+              // pontuar jogador
+              score.increaseHuman();
+              this._pointUp();
+            }
+          }
+          //  verifica jogador 2 fez um ponto
+          if (this.x < this.r + leftPadle.w + gapX) {
+            if (
+              this.y > leftPadle.y &&
+              this.y - this.r < leftPadle.y + leftPadle.h
+            ) {
+              this._reverseX();
+            } else {
+              score.increaseComputer();
+              this._pointUp();
+            }
+          }
+          if (
+            (this.y - this.r < 0 && this.directionY < 0) ||
+            (this.y > field.h - this.r && this.directionY > 0)
+          ) {
+            this._reverseY();
+          }
+        },
+        _reverseX: function () {
+          this.directionX *= -1;
+        },
+        _reverseY: function () {
+          this.directionY *= -1;
+        },
+        _speedUp: function () {
+          this.speed += 1;
+        },
+        _pointUp: function () {
+          this._speedUp();
+          // rightPadle.speed()
+          this.x = field.w / 2;
+          this.y = field.h / 2;
+        },
+        _move: function () {
+          this.x += this.directionX * this.speed;
+          this.y += this.directionY * this.speed;
+        },
+        draw: function () {
+          canvasCTX.fillStyle = "#ffffff";
+          canvasCTX.beginPath();
+          canvasCTX.arc(this.x, this.y, this.r, 0, 2 * Math.PI, false);
+          canvasCTX.fill();
+
+          this._move();
+          this._calcPosition();
+        },
+      };
+
+      function setup() {
+        canvasEL.width = canvasCTX.width = field.w;
+        canvasEL.height = canvasCTX.height = field.h;
+      }
+      function draw() {
+        field.draw();
+        line.draw();
+        leftPadle.draw();
+        rightPadle.draw();
+        score.draw();
+        ball.draw();
+      }
+
+      window.animateFrame = (function () {
+        return (
+          window.requestAnimationFrame ||
+          window.webkitRequestAnimationFrame ||
+          window.mozRequestAnimationFrame ||
+          window.oRequestAnimationFrame ||
+          window.msRequestAnimationFrame ||
+          function (callback) {
+            return window.setTimeout(callback, 1000 / 60);
+          }
+        );
+      })();
+
+      function main() {
+        animateFrame(main);
+        draw();
+      }
+      setup();
+      main();
+      win.Winner()
+
+      canvasEL.addEventListener("mousemove", function (e) {
+        mouse.x = e.pageX;
+        mouse.y = e.pageY;
+
+        console.log(mouse);
+      });
+    </script>
+  </body>
+</html>
